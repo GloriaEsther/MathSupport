@@ -1,0 +1,15 @@
+from pymongo import MongoClient
+
+MONGO_URI = "mongodb://localhost:27017"
+MONGO_DB_NAME = "mathsupport_db"
+
+client = MongoClient(MONGO_URI)
+db = client[MONGO_DB_NAME]
+
+# Intenta insertar un documento de prueba
+resultado = db["Usuario"].insert_one({"test": "prueba"})
+print("Documento insertado con ID:", resultado.inserted_id)
+
+# Verifica si la base de datos contiene datos
+print("Usuarios en la BD:", list(db["Usuario"].find()))
+#################################################3

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photomath Python</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h2 class="text-center">Resolver Ecuaciones</h2>
+    
+    <form id="formulario">
+        <input type="text" id="ecuacion" class="form-control mb-3" placeholder="Ingresa la ecuación (ej. x**2 - 4)">
+        <button type="submit" class="btn btn-primary w-100">Resolver</button>
+    </form>
+
+    <h4 class="mt-4">Solución: <span id="resultado"></span></h4>
+
+    <h3 class="mt-4">Subir Imagen</h3>
+    <input type="file" id="imagen" class="form-control mb-3">
+    <button id="subirImagen" class="btn btn-secondary w-100">Reconocer Ecuación</button>
+
+    <script>
+        document.getElementById('formulario').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            let ecuacion = document.getElementById('ecuacion').value;
+            let response = await fetch("/api/resolver/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ecuacion})
+            });
+            let data = await response.json();
+            document.getElementById('resultado').innerText = data.solucion || data.error;
+        });
+
+        document.getElementById('subirImagen').addEventListener('click', async function() {
+            let imagen = document.getElementById('imagen').files[0];
+            let formData = new FormData();
+            formData.append("imagen", imagen);
+
+            let response = await fetch("/api/ocr/", {
+                method: "POST",
+                body: formData
+            });
+
+            let data = await response.json();
+            document.getElementById('ecuacion').value = data.ecuacion || data.error;
+        });
+    </script>
+</body>
+</html>

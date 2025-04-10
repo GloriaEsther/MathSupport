@@ -1,0 +1,54 @@
+body {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    margin: 0;
+}
+
+/* 🔹 Contenedor de la imagen de fondo con semicírculo */
+.background-container {
+    position: relative;
+    width: 100%;
+    height: 200px; /* Ajusta la altura según necesites */
+    overflow: hidden;
+    background: #667eea;
+    border-radius: 0 0 50% 50%;
+}
+
+/* 🔹 Imagen de fondo dentro del semicírculo */
+.background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 🔹 Contenedor del logo */
+.logo-container {
+    position: absolute;
+    top: 120px; /* Ajusta la posición vertical del logo */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+/* 🔹 Imagen del logo (NO circular) */
+.logo {
+    width: 120px; /* Ajusta según el tamaño del logo */
+    height: auto;
+}
+
+/* 🔹 Contenedor del formulario */
+.form-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    margin-top: 80px; /* Ajusta para separarlo del logo */
+}
+
+

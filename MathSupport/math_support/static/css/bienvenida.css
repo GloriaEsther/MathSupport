@@ -1,0 +1,67 @@
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;/*esto apenas se agrego*/
+    align-items: center;
+    justify-content: center;
+    background:linear-gradient(135deg, #667eea, #764ba2);
+    background-image:url(../images/fondo.jpeg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+.image-container {/* Contenedor de la imagen */
+    position: relative;
+    width: 100%; /* Ajusta según sea necesario */
+    /*height: 100vh; esto por ahora lo comente /* Altura de la pantalla completa */
+    margin-bottom: 30px;/*esto lo agregue para agregar espacion entre el logo y los botones*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.logo {/*imagen de logo ni de pdo le quise mover*/
+    width: 150px; /*150% Tamaño más pequeño para la imagen encima */
+    max-width: 150px;
+    height: auto;
+    z-index: 2; /* Se coloca sobre la imagen de fondo */
+}
+/* Contenedor de botones */
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+/* Botón personalizado */
+.btn-custom {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: red; /* rojo*/
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+.btn-custom:hover {
+    background-color: red; /* Un poco más oscuro al pasar el mouse */
+}
+.register-link {
+    margin-top: 15px;
+    font-size: 14px;
+    color: white;
+}
+.register-link a {
+    color: red; /* Rojo  */
+    text-decoration: none;
+    font-weight: bold;
+}
+.register-link a:hover {
+    text-decoration: underline;
+}
+

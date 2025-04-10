@@ -1,0 +1,19 @@
+/* Estilos Generales */
+body {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor de Tarjeta */
+.card {
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Estilos del Botón */
+.btn-primary, .btn-success, .btn-light {
+    width: 100%;
+}
