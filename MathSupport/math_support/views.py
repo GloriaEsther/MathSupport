@@ -34,35 +34,6 @@ def inicio_sesion(request):
             return redirect('login')
     return render(request, 'usuario/login.html')#ruta relativa
 
-
-'''
-este np funciona
-@csrf_exempt
-def inicio_sesion(request):
-    if request.method == "POST":
-        email = request.POST.get("email", "").strip()
-        password = request.POST.get("password", "").strip()
-
-        if not email or not password:
-            messages.error(request, "Todos los campos son obligatorios.")
-            return redirect("login")
-
-        usuario = UsuarioModel.autenticar_usuario(email, password)
-
-        if usuario:
-            request.session["usuario_id"] = str(usuario["_id"])  # Guardar ID en sesión
-            messages.success(request, "Inicio de sesión exitoso.")
-            return redirect("home")  # Redirigir a la página principal
-        else:
-            messages.error(request, "Correo o contraseña incorrectos.")
-            return redirect("login")
-
-    return render(request, "usuario/login.html")
-#todavia no lo pruebo
-#voy a ver si se puede crear ek cerrar sesion
-'''
-
-
 @csrf_exempt
 def registro(request):#ya funciona,falta el login :')
     if request.method == 'POST':
@@ -93,6 +64,18 @@ def registro(request):#ya funciona,falta el login :')
 @csrf_exempt
 def home(request):
     return render (request,"funciones/home.html")#ruta relativa
+#esto no lo he probado aun
+'''
+def extraer_texto_de_imagen(ruta_imagen):
+    imagen = Image.open(ruta_imagen)
+    texto = pytesseract.image_to_string(imagen, lang='spa')  # o 'eng' si está en inglés
+    return texto
+
+'''
+
+
+
+
 
 '''
 esto sabra dios si sirva xd :b

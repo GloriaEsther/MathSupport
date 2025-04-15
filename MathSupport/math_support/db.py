@@ -1,6 +1,7 @@
 #aqui esta la conexion de mongodb
 from pymongo import MongoClient
 import bcrypt
+from datetime import datetime
 MONGO_URI = "mongodb://localhost:27017"
 MONGO_DB_NAME = "mathsupport_db"
 
@@ -9,7 +10,7 @@ db = client[MONGO_DB_NAME]
 
 # Colecciones
 usuarios_collection = db["Usuario"]
-#problemas_collection = db["Problemas"]#este aun no existe xd
+problemas_collection = db["Problemas"]
 # Verificar conexión
 print(db.list_collection_names()) 
 
@@ -40,3 +41,32 @@ class UsuarioModel:
         if usuario and bcrypt.checkpw(password.encode("utf-8"), usuario["password"].encode("utf-8")):
             return usuario
         return None
+
+class ProblemaModel:
+    @staticmethod
+    def guardar_problema(usuario_email, ecuacion, imagen_url, resultado, pasos):
+        problema = {
+            "usuario_email": usuario_email,
+            "ecuacion": ecuacion,
+            "imagen_url": imagen_url,
+            "resultado": resultado,
+            "pasos": pasos,
+            "fecha": datetime.utcnow()
+        }
+        resultado_insert = problemas_collection.insert_one(problema)
+        print(f"✅ Problema guardado con ID: {resultado_insert.inserted_id}")
+        return {"mensaje": "Problema guardado", "id": str(resultado_insert.inserted_id)}
+
+    @staticmethod#aqui serviria como historial para el usuario
+    def obtener_problemas_por_usuario(usuario_email):
+        problemas = list(problemas_collection.find({"usuario_email": usuario_email}))
+        for p in problemas:
+            p["_id"] = str(p["_id"])  # Convertir ObjectId a string para evitar errores al serializar
+        return problemas
+
+    @staticmethod
+    def buscar_problemas_por_ecuacion(ecuacion):
+        problemas = list(problemas_collection.find({"ecuacion": ecuacion}))
+        for p in problemas:
+            p["_id"] = str(p["_id"])
+        return problemas
