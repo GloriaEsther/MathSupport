@@ -37,8 +37,7 @@ def inicio_sesion(request):
 @csrf_exempt
 def registro(request):#ya funciona,falta el login :')
     if request.method == 'POST':
-        print(f"📩 Datos recibidos en POST: {request.POST}")  # 🔍 Debug
-
+        print(f"📩 Datos recibidos en POST: {request.POST}")  # esto es para debug
         email = request.POST.get('email', '')
         password = request.POST.get('password', '')
         print("Solicitud de registro recibida: email={email}, password={password}")

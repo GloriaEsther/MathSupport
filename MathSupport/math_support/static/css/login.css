@@ -7,8 +7,9 @@ body {
     height: 100vh;
     margin: 0;
 }
-
-/* 🔹 Contenedor de la imagen de fondo con semicírculo */
+/*el logo de MathSupport no es responsivo, luego lo checo*/
+/*revisa las validaciones(al ultimo)*/
+/*Contenedor de la imagen de fondo con semicírculo */
 .background-container {
     position: relative;
     width: 100%;
@@ -18,14 +19,14 @@ body {
     border-radius: 0 0 50% 50%;
 }
 
-/* 🔹 Imagen de fondo dentro del semicírculo */
+/*Imagen de fondo dentro del semicírculo */
 .background-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* 🔹 Contenedor del logo */
+/*Contenedor del logo */
 .logo-container {
     position: absolute;
     top: 120px; /* Ajusta la posición vertical del logo */
@@ -34,13 +35,13 @@ body {
     z-index: 2;
 }
 
-/* 🔹 Imagen del logo (NO circular) */
+/*Imagen del logo (NO circular) */
 .logo {
     width: 120px; /* Ajusta según el tamaño del logo */
     height: auto;
 }
 
-/* 🔹 Contenedor del formulario */
+/*Contenedor del formulario */
 .form-container {
     background: white;
     padding: 20px;
@@ -50,5 +51,3 @@ body {
     max-width: 400px;
     margin-top: 80px; /* Ajusta para separarlo del logo */
 }
-
-

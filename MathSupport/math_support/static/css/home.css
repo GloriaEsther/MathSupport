@@ -1,0 +1,233 @@
+/*:root {
+    --color_primario: #8527c3fd;
+    --color_primario_suave: #8527c383;
+    --color_blanco: #fff;
+    --altura_header: 60px;
+    --padding_left_right: 2rem;
+    --ancho_maximo: 1200px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #333;
+    font-family: system-ui, sans-serif;
+    color: white;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+.header {
+    height: var(--altura_header);
+    background-color: var(--color_primario);
+}
+
+.navbar {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--padding_left_right);
+    max-width: var(--ancho_maximo);
+    margin: 0 auto;
+    position: relative;
+}
+
+.menu_hamburguesa {
+   position: absolute;
+   opacity: 0;
+   pointer-events: none;
+}
+
+.menu_hamburguesa:checked + .ul_links {
+    height: calc(100vh - var(--altura_header));
+}
+
+.label_hamburguesa {
+    display: block;
+}
+
+.list_icon {
+    color: var(--color_blanco);
+    cursor: pointer;
+}
+
+.ul_links {
+    width: 100%;
+    background-color: var(--color_primario_suave);
+    position: absolute;
+    top: var(--altura_header);
+    height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    transition: all 0.3s ease;
+}
+
+.link {
+    font-size: 1.5rem;
+    color: var(--color_blanco);
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+    .label_hamburguesa {
+        display: none;
+    }
+
+    .ul_links {
+        position: static;
+        height: auto;
+        flex-direction: row;
+        background-color: transparent;
+    }
+
+    .link {
+        padding: 0.5rem 1rem;
+        transition: background 0.3s;
+    }
+
+    .link:hover {
+        background-color: #5f1192;
+        border-radius: 5px;
+    }
+}
+*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  .header {
+    background-color: #333;
+    color: white;
+  }
+
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    position: relative;
+  }
+
+  .label_hamburguesa {
+    cursor: pointer;
+    display: block;
+  }
+
+  .menu_hamburguesa {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ul_links {
+    list-style: none;
+    background-color: #444;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+  }
+
+  .ul_links li {
+    border-bottom: 1px solid #555;
+  }
+
+  .ul_links .link {
+    display: block;
+    padding: 15px 20px;
+    color: white;
+    text-decoration: none;
+  }
+
+  .ul_links .link:hover {
+    background-color: #555;
+  }
+
+  /* Mostrar el menú cuando el checkbox está checked */
+  .menu_hamburguesa:checked + .ul_links {
+    max-height: 200px;
+  }
+
+  /* Estilo del ícono (ya lo tenías bien) */
+  .list_icon {
+    fill: white;
+  }
+
+  /* Opcional: en pantallas grandes mostrar siempre el menú */
+  @media (min-width: 768px) {
+    .label_hamburguesa {
+      display: none;
+    }
+
+    .ul_links {
+      display: flex;
+      max-height: none;
+    }
+
+    .ul_links li {
+      border: none;
+    }
+
+    .ul_links .link {
+      padding: 10px 15px;
+    }
+  }
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    margin-top: 80px;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.icon-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #444;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    transition: transform 0.3s;
+    width: 140px;
+}
+
+.icon-button:hover {
+    transform: scale(1.05);
+    background-color: #5e3f82;
+}
+
+.camara, .subirImagen {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.label {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+}

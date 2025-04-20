@@ -42,7 +42,7 @@ class UsuarioModel:
             return usuario
         return None
 
-class ProblemaModel:
+class ProblemaModel:#se pudo usar mongoengine parea llenar los problemas automaticamente ptm
     @staticmethod
     def guardar_problema(usuario_email, ecuacion, imagen_url, resultado, pasos):
         problema = {
