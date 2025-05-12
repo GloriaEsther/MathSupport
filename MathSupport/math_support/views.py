@@ -1,21 +1,20 @@
+#views.py solo maneja las vistas y peticiones HTTP.
 from django.shortcuts import render,redirect
 from django.contrib import messages
-#from .models import UsuarioModel
-from .db import UsuarioModel#esto es de la base de datos
+from .db import UsuarioModel#esto es de la collection de usuarios
+from .db import ProblemaModel #esto es de la collection de los problemas matematicos
 from django.views.decorators.csrf import csrf_exempt
-###########################################
-#views.py solo maneja las vistas y peticiones HTTP.
 import pytesseract
 from PIL import Image
 import sympy as sp
+from django.http import JsonResponse
+import io
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Ajusta si es necesario
 
-# Configurar la ruta de Tesseract en Windows (si es necesario)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 #UsuarioModel.registrar_usuario("prueba@email.com", "123456")#prueba
 @csrf_exempt#esta etiqueta es una "proteccion" contra falsificaciones de solicitudes entre sitios (CSRF)
 def bienvenida(request):
     return render (request,"usuario/bienvenida.html")#ruta relativa
-
 
 @csrf_exempt
 def inicio_sesion(request):
@@ -72,7 +71,39 @@ def extraer_texto_de_imagen(ruta_imagen):
 
 '''
 
+'''
 
+@csrf_exempt  # Solo si estás haciendo pruebas sin token CSRF
+def resolver_problema(request):
+    if request.method == 'POST':
+        if 'imagen' not in request.FILES:
+            return JsonResponse({'error': 'No se envió ninguna imagen'}, status=400)
+
+        imagen = request.FILES['imagen']
+        img = Image.open(io.BytesIO(imagen.read()))
+        
+        ecuacion = pytesseract.image_to_string(img, config='--psm 6')
+        ecuacion = ecuacion.strip()
+
+        if not ecuacion:
+            return JsonResponse({'error': 'No se pudo extraer texto de la imagen'}, status=400)
+
+        problemas_existentes = ProblemaModel.buscar_problemas_por_ecuacion(ecuacion)
+
+        if problemas_existentes:
+            return JsonResponse({
+                'mensaje': 'Problema encontrado en la base de datos',
+                'problemas': problemas_existentes,
+                'ecuacion': ecuacion
+            })
+        else:
+            return JsonResponse({
+                'mensaje': 'Problema no encontrado',
+                'ecuacion': ecuacion
+            })
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+'''
 
 
 

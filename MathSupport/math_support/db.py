@@ -70,3 +70,29 @@ class ProblemaModel:#se pudo usar mongoengine parea llenar los problemas automat
         for p in problemas:
             p["_id"] = str(p["_id"])
         return problemas
+ 
+    @staticmethod
+    def cargar_problemas_iniciales():
+        problemas_iniciales = [
+            {
+                "usuario_email": "mimi@gmail.com",  # puedes poner "base" si no hay usuario  te quedaste aqui
+                "ecuacion": "2x + 3 = 7",
+                "imagen_url": "",  # vacío porque es manual
+                "resultado": "x = 2",
+                "pasos": ["2x + 3 = 7", "2x = 4", "x = 2"],
+                "fecha": datetime.utcnow()
+            },
+            {
+                "usuario_email": "admin@math.com",
+                "ecuacion": "x^2 - 4 = 0",
+                "imagen_url": "",
+                "resultado": "x = ±2",
+                "pasos": ["x^2 - 4 = 0", "x^2 = 4", "x = ±2"],
+                "fecha": datetime.utcnow()
+            }
+        ]
+        return problemas_iniciales
+    
+    #problemas_collection.insert_many(cargar_problemas_iniciales)
+    #print("✅ Problemas iniciales insertados.")
+
