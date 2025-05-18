@@ -4,14 +4,54 @@ from django.contrib import messages
 from .db import UsuarioModel#esto es de la collection de usuarios
 from .db import ProblemaModel #esto es de la collection de los problemas matematicos
 from django.views.decorators.csrf import csrf_exempt
-import pytesseract
-from PIL import Image
-import sympy as sp
 from django.http import JsonResponse
 import io
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Ajusta si es necesario
+import os
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.shortcuts import render
+from sympy import sympify, Eq
+import sympy as sp
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Ajusta si es necesario
 
 #UsuarioModel.registrar_usuario("prueba@email.com", "123456")#prueba
+#from pix2tex.cli import LatexOCR  # Asegúrate que Pix2Tex esté instalado
+from pix2text import Pix2Text
+from pylatexenc.latex2text import LatexNodes2Text
+from PIL import Image
+import os
+from django.shortcuts import render
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
+# Carga el modelo una sola vez
+model = Pix2Text()
+@csrf_exempt
+def ocr_view(request):
+    if request.method == 'POST' and request.FILES.get('image'):
+        image_file = request.FILES['image']
+        
+        # Guardar imagen en disco temporalmente
+        fs = FileSystemStorage()
+        filename = fs.save(image_file.name, image_file)
+        image_path = fs.path(filename)
+
+        # Procesar imagen con OCR
+        try:
+            image = Image.open(image_path).convert('RGB')
+            latex_result = model(image)
+        except Exception as e:
+            latex_result = f"Error al procesar imagen: {str(e)}"
+
+        # Eliminar la imagen si ya no la necesitas
+        os.remove(image_path)
+
+        return render(request, 'ocrapp/result.html', {'latex': latex_result})
+
+    return render(request, 'ocrapp/upload.html')
+
+
+
 @csrf_exempt#esta etiqueta es una "proteccion" contra falsificaciones de solicitudes entre sitios (CSRF)
 def bienvenida(request):
     return render (request,"usuario/bienvenida.html")#ruta relativa

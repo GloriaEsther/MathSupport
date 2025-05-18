@@ -1,0 +1,86 @@
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+*.tmp
+*.bak
+*~
+
+# ========== Entornos virtuales ==========
+env/
+venv/
+.venv/
+ENV/
+.ENV/
+
+# ========== Variables de entorno ==========
+*.env
+.env/
+.env.*.local
+
+# ========== Archivos de base de datos ==========
+*.sqlite3
+*.db
+
+# ========== Django ==========
+staticfiles/
+media/
+local_settings.py
+
+# ========== VS Code ==========
+.vscode/
+.history/
+
+# ========== OCR y modelos pesados ==========
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.h5
+*.bin
+*.box
+*.traineddata
+
+# Carpetas de salida o temporales de OCR
+ocr_output/
+ocr_temp/
+pix2text_output/
+pix2text_temp/
+__results__/
+
+# ========== HuggingFace / Transformers ==========
+transformers_cache/
+.huggingface/
+.cache/
+
+# Modelos y pesos descargados
+models/
+weights/
+runs/
+lightning_logs/
+
+# ========== macOS & Windows ==========
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ========== Git backups ==========
+*.orig
+
+# ========== Node.js (por si agregas frontend) ==========
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+#Este repositorio se debe ignorar 
+MathSupport/LaTeX-OCR/
+
+
+#> Nota: El modelo `mfr` para reconocer escritura a mano se descargará automáticamente en la primera ejecución.(se supone que va esto en el readme)
