@@ -7,6 +7,9 @@ urlpatterns = [
     path('login',views.inicio_sesion,name='login'),
     path('registro',views.registro,name='registro'),
     path('home',views.home,name='home'),
-   # path('resolver/', views.resolver_ecuacion, name='resolver_ecuacion'),por ahora no lqas voy a ocupar
+    path('ocr/', views.ocr_view, name='ocr_view'),
+    path('resolver_ecuacion/', views.resolver_ecuacion, name='resolver_ecuacion'),#lo vas a ocupar :b
+    #path('agregar/', views.agregar_ecuacion, name='agregar_ecuacion'),
+    #path('ver_ecuaciones/', views.ver_ecuaciones, name='ver_ecuaciones'),
    # path('reconocer/', views.reconocer_ecuacion, name='reconocer_ecuacion'),
 ]

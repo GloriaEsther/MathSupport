@@ -1,0 +1,12 @@
+<h1>Ecuaciones detectadas</h1>
+
+<form method="POST" action="{% url 'resolver' %}">
+    {% csrf_token %}
+    {% for eq in ecuaciones %}
+        <div>
+            <label>Ecuación {{ forloop.counter }}:</label>
+            <textarea name="ecuacion_{{ forloop.counter }}" rows="2" cols="60">{{ eq.legible }}</textarea>
+        </div>
+    {% endfor %}
+    <button type="submit">Resolver sistema</button>
+</form>

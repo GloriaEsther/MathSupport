@@ -24,33 +24,73 @@ from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 
+
 # Carga el modelo una sola vez
-model = Pix2Text()
+model = Pix2Text(model_name='mfr')#para ejercicios manuscritos
+
+#la vista de abajo tambien funciona pero aun hay que mejorar
+
+'''
+18-05-25
+
 @csrf_exempt
 def ocr_view(request):
-    if request.method == 'POST' and request.FILES.get('image'):
-        image_file = request.FILES['image']
-        
-        # Guardar imagen en disco temporalmente
+    resultados = []
+
+    if request.method == 'POST' and request.FILES.getlist('images'):
+        images = request.FILES.getlist('images')
         fs = FileSystemStorage()
-        filename = fs.save(image_file.name, image_file)
-        image_path = fs.path(filename)
 
-        # Procesar imagen con OCR
-        try:
-            image = Image.open(image_path).convert('RGB')
-            latex_result = model(image)
-        except Exception as e:
-            latex_result = f"Error al procesar imagen: {str(e)}"
+        for image_file in images:
+            filename = fs.save(image_file.name, image_file)
+            image_path = fs.path(filename)
 
-        # Eliminar la imagen si ya no la necesitas
-        os.remove(image_path)
+            try:
+                image = Image.open(image_path).convert('RGB')
+                latex_result = model.recognize(image)  # Usa Pix2Text
+                texto = LatexNodes2Text().latex_to_text(latex_result)
+                resultados.append(texto)
+            except Exception as e:
+                resultados.append(f"Error al procesar imagen: {str(e)}")
 
-        return render(request, 'ocrapp/result.html', {'latex': latex_result})
+            os.remove(image_path)
 
-    return render(request, 'ocrapp/upload.html')
+    return render(request, 'funciones/upload.html', {
+        'resultados': resultados
+    })
+'''
 
+@csrf_exempt
+def ocr_view(request):
+    if request.method == 'POST' and request.FILES.getlist('images'):
+        files = request.FILES.getlist('images')
+        resultados = []
 
+        for image_file in files:
+            fs = FileSystemStorage()
+            filename = fs.save(image_file.name, image_file)
+            image_path = fs.path(filename)
+
+            try:
+                image = Image.open(image_path).convert('RGB')
+                latex_result = model.recognize(image)
+                texto_legible = LatexNodes2Text().latex_to_text(latex_result)
+            except Exception as e:
+                latex_result = "Error al procesar imagen"
+                texto_legible = str(e)
+
+            resultados.append({
+                'latex': latex_result,
+                'texto': texto_legible
+            })
+
+            os.remove(image_path)
+
+        return render(request, 'funciones/result.html', {
+            'resultados': resultados
+        })
+
+    return render(request, 'funciones/upload.html')
 
 @csrf_exempt#esta etiqueta es una "proteccion" contra falsificaciones de solicitudes entre sitios (CSRF)
 def bienvenida(request):
@@ -146,12 +186,10 @@ def resolver_problema(request):
 '''
 
 
-
-'''
-esto sabra dios si sirva xd :b
+#esto sabra dios si sirva xd :b
 @csrf_exempt
 def resolver_ecuacion(request):
-    
+ '''
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -165,9 +203,14 @@ def resolver_ecuacion(request):
             return JsonResponse({"solucion": str(solucion)})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-    
-    return JsonResponse({"mensaje": "Aquí se resolverán las ecuaciones"})
-    
+ 
+
+     return JsonResponse({"mensaje": "Aquí se resolverán las ecuaciones"})
+     '''
+ print("Luego resuelve")
+ return render(request,"funciones/resolver.html")
+
+'''
 @csrf_exempt
 def reconocer_ecuacion(request):
     
