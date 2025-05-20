@@ -6,16 +6,11 @@ from .db import ProblemaModel #esto es de la collection de los problemas matemat
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import io
-import os
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render
 from sympy import sympify, Eq
 import sympy as sp
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Ajusta si es necesario
-
-#UsuarioModel.registrar_usuario("prueba@email.com", "123456")#prueba
-#from pix2tex.cli import LatexOCR  # Asegúrate que Pix2Tex esté instalado
 from pix2text import Pix2Text
 from pylatexenc.latex2text import LatexNodes2Text
 from PIL import Image
@@ -24,12 +19,10 @@ from django.shortcuts import render
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 
-
+#OCR
 # Carga el modelo una sola vez
 model = Pix2Text(model_name='mfr')#para ejercicios manuscritos
-
 #la vista de abajo tambien funciona pero aun hay que mejorar
-
 '''
 18-05-25
 
@@ -60,6 +53,8 @@ def ocr_view(request):
     })
 '''
 
+#19/05/2025
+#esto funciona pero la no negatividad la pone despues de la funcion objetivo 
 @csrf_exempt
 def ocr_view(request):
     if request.method == 'POST' and request.FILES.getlist('images'):
@@ -75,13 +70,16 @@ def ocr_view(request):
                 image = Image.open(image_path).convert('RGB')
                 latex_result = model.recognize(image)
                 texto_legible = LatexNodes2Text().latex_to_text(latex_result)
+                #texto_ordenado = limpiar_y_ordenar(texto_legible)
             except Exception as e:
                 latex_result = "Error al procesar imagen"
-                texto_legible = str(e)
+                texto_legible = str(e) #eso estaba primero
+                #texto_ordenado=str(e)
 
             resultados.append({
                 'latex': latex_result,
-                'texto': texto_legible
+                'texto': texto_legible #eso estaba primero
+                #'texto':texto_ordenado
             })
 
             os.remove(image_path)
@@ -92,6 +90,12 @@ def ocr_view(request):
 
     return render(request, 'funciones/upload.html')
 
+@csrf_exempt
+def resolver_ecuacion(request):
+ print("Luego resuelve")
+ return render(request,"funciones/resolver.html")
+
+#login
 @csrf_exempt#esta etiqueta es una "proteccion" contra falsificaciones de solicitudes entre sitios (CSRF)
 def bienvenida(request):
     return render (request,"usuario/bienvenida.html")#ruta relativa
@@ -142,87 +146,3 @@ def registro(request):#ya funciona,falta el login :')
 @csrf_exempt
 def home(request):
     return render (request,"funciones/home.html")#ruta relativa
-#esto no lo he probado aun
-'''
-def extraer_texto_de_imagen(ruta_imagen):
-    imagen = Image.open(ruta_imagen)
-    texto = pytesseract.image_to_string(imagen, lang='spa')  # o 'eng' si está en inglés
-    return texto
-
-'''
-
-'''
-
-@csrf_exempt  # Solo si estás haciendo pruebas sin token CSRF
-def resolver_problema(request):
-    if request.method == 'POST':
-        if 'imagen' not in request.FILES:
-            return JsonResponse({'error': 'No se envió ninguna imagen'}, status=400)
-
-        imagen = request.FILES['imagen']
-        img = Image.open(io.BytesIO(imagen.read()))
-        
-        ecuacion = pytesseract.image_to_string(img, config='--psm 6')
-        ecuacion = ecuacion.strip()
-
-        if not ecuacion:
-            return JsonResponse({'error': 'No se pudo extraer texto de la imagen'}, status=400)
-
-        problemas_existentes = ProblemaModel.buscar_problemas_por_ecuacion(ecuacion)
-
-        if problemas_existentes:
-            return JsonResponse({
-                'mensaje': 'Problema encontrado en la base de datos',
-                'problemas': problemas_existentes,
-                'ecuacion': ecuacion
-            })
-        else:
-            return JsonResponse({
-                'mensaje': 'Problema no encontrado',
-                'ecuacion': ecuacion
-            })
-    else:
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
-'''
-
-
-#esto sabra dios si sirva xd :b
-@csrf_exempt
-def resolver_ecuacion(request):
- '''
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            ecuacion = data.get("ecuacion")
-
-            if not ecuacion:
-                return JsonResponse({"error": "No se proporcionó una ecuación"}, status=400)
-
-            x = sp.Symbol('x')
-            solucion = sp.solve(ecuacion, x)
-            return JsonResponse({"solucion": str(solucion)})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
- 
-
-     return JsonResponse({"mensaje": "Aquí se resolverán las ecuaciones"})
-     '''
- print("Luego resuelve")
- return render(request,"funciones/resolver.html")
-
-'''
-@csrf_exempt
-def reconocer_ecuacion(request):
-    
-     if request.method == "POST" and request.FILES.get("imagen"):
-        imagen = request.FILES["imagen"]
-        img = Image.open(imagen)
-
-        # Extraer texto de la imagen
-        texto_reconocido = pytesseract.image_to_string(img)
-        return JsonResponse({"ecuacion": texto_reconocido.strip()})
-
-     return JsonResponse({"error": "No se proporcionó una imagen"}, status=400)
-
-    #return JsonResponse({"mensaje": "Aquí se reconocerán ecuaciones con OCR"})
-'''
