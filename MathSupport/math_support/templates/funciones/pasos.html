@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resolución paso a paso</title>
+</head>
+<body>
+    <h2>Resolución paso a paso{{indice|add:1}}</h2>
+    <p>{{ paso }}</p>
+
+    <div>
+        <img src="{{ grafica_base64 }}" alt="Gráfica del paso {{ indice }} " />
+    </div>
+
+    <form method="get">
+        {% if tiene_anterior %}
+            <button name="paso" value="{{ indice|add:'-1' }}">← Paso anterior</button>
+        {% endif %}
+        {% if tiene_siguiente %}
+            <button name="paso" value="{{ indice|add:'1' }}">Siguiente paso →</button>
+        {% endif %}
+    </form>
+</body>
+</html>

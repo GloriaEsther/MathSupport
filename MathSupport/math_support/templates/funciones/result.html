@@ -1,14 +1,18 @@
 <h1>Revisa y edita los resultados antes de resolver</h1>
 
-<form method="POST" action="{% url 'resolver_ecuacion' %}">
+<form method="POST" action="{% url 'maximizar' %}">
   {% csrf_token %}
-
+ 
   {% for r in resultados %}
-    <h3>Ecuación {{ forloop.counter }}</h3>
-    <label>Texto legible:</label><br>
-    <textarea name="ecuaciones" rows="3" cols="80">{{ r.texto }}</textarea>
+    
+    {% if forloop.first %}
+      <h3>Función Objetivo</h3>
+    {% elif forloop.counter == 2 %}
+        <h3>Restricciones</h3>
+    {% endif %}
+    <label></label><br>
+    <textarea name="item" rows="3" cols="80">{{ r.texto }}</textarea>
     <br><br>
   {% endfor %}
-
   <button type="submit">Enviar y resolver</button>
 </form>
