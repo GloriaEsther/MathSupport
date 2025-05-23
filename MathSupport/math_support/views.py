@@ -27,36 +27,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 import pickle  # Para serializar datos complejos como objetos sympy
 import base64
-
-'''
-def reemplazar_variables_para_procesar(restricciones):#si ya reemplazo en el parseo segun yo ya no es necesario,igual lo dejo por las dudas
-    reemplazos = {
-        sp.Symbol('x1'): sp.Symbol('x'),
-        sp.Symbol('x2'): sp.Symbol('y')
-    }
-    nuevas = []
-    for r in restricciones:
-        nuevo = r
-        for viejo, nuevo_valor in reemplazos.items():
-            nuevo = nuevo.replace(viejo, nuevo_valor)
-        nuevas.append(nuevo)
-    return nuevas
-    
-def reemplazar_variables_para_mostrar(pasos):
-    reemplazos = {
-       sp.Symbol('x1'): sp.Symbol('x'),
-       sp.Symbol('x2'): sp.Symbol('y')
-    }
-    nuevos_pasos = []
-    for paso in pasos:
-        nuevo = paso
-        for viejo, nuevo_valor in reemplazos.items():
-            nuevo = nuevo.replace(viejo, nuevo_valor)
-        nuevos_pasos.append(nuevo)
-    return nuevos_pasos
-'''
-
-
+import unicodedata
 
 #OCR
 # Carga el modelo una sola vez
@@ -85,18 +56,6 @@ def mover_no_negatividad_al_final(restricciones):
             otras.append(r)
     return fun_obj + otras + no_negativas
 
-'''
-#sospecho que es esto
-def reemplazar_variables_en_pasos(pasos):
-    reemplazos = {'x': 'x1', 'y': 'x2'}
-    nuevos_pasos = []
-    for paso in pasos:
-        nuevo_paso = paso
-        for viejo, nuevo_valor in reemplazos.items():
-            nuevo_paso = nuevo_paso.replace(viejo, nuevo_valor)
-        nuevos_pasos.append(nuevo_paso)
-    return nuevos_pasos
-'''
 @csrf_exempt
 def ocr_view(request):
     if request.method == 'POST' and request.FILES.getlist('images'):#recupera la lista de las imagenes ingresadas en el formulario
@@ -132,7 +91,7 @@ def ocr_view(request):
     return render(request, 'funciones/upload.html')
 
 #resolucion de problemas (estamos en pruebas,ya muestra la grafica)
-#22-05-2025
+#23-05-2025
 #declara variables
 x, y = sp.symbols("x y")
 x1, x2 = sp.symbols('x1 x2')  # estos se usan en la entrada del usuario#
@@ -141,16 +100,27 @@ variables = (x, y)
 
 def limpiar_expresion(expr):#revisa que la expresion ingresada(lista) contenga una letra (como en la funcion objetivo usa Z como funcion (para maximizar))
     expr = expr.replace(" ", "")
+    # Normaliza caracteres Unicode raros a ASCII básico (por ejemplo “≤” → "<=")
+    expr = unicodedata.normalize("NFKD", expr)#esto no lo he probado,ya mas tarde
     expr = re.sub(r"(\d)([a-zA-Z])", r"\1*\2", expr)
     # Eliminar caracteres no válidos
-    expr = expr.replace("∀i", "").replace("\r", "").replace("\n", "")
+    expr = expr.replace("∀i", "").replace("\r", "").replace("\n", "").replace("×", "x")
     # Reemplazar variables como x1, x2 por x, y
     expr = expr.replace("x1", "x").replace("x2", "y")
     # Asegurar que los símbolos >= y <= sean consistentes (a veces OCR confunde)
     expr = expr.replace("≥", ">=").replace("≤", "<=")
+    expr = expr.replace("×", "x").replace("−", "-")
+    expr = expr.replace("≥", ">=").replace("≤", "<=")
+    expr = expr.replace("≧", ">=").replace("≦", "<=")
+    expr = expr.replace("⩾", ">=").replace("⩽", "<=")
     #elimina el 1 de mas
-    expr =expr.replace("x11", "x1")
+    expr =expr.replace("x11", "x1") 
     expr= expr.replace("x12", "x2")
+    '''
+    #luego lo implemento
+    expr = re.sub(r"x11+", "x1", expr)
+    expr = re.sub(r"x12+", "x2", expr)
+    '''
     expr= expr.replace("Max1", "Max")
     #por si acaso todavia no implemento minimizar z
     expr= expr.replace("Min1", "Min")
@@ -161,27 +131,29 @@ def parse_funcion_objetivo(linea):#(lo pasa a sympy)
     expr = expr.replace('x1', 'x').replace('x2', 'y')#desde el front recibe x1 y x2 a x,y esto esta en veremos ya lo probe pero hay errores:.replace('×1','x').replace('×2','y').replace(" ", "").replace("2=","Z=")
     return sp.sympify(expr)
 
-def parse_restricciones(lista):#limpia las restricciones
+def parse_restricciones(lista):
     restricciones = []
     for l in lista:
         l = limpiar_expresion(l)
-        l = l.replace('x1', 'x').replace('x2', 'y')#.replace('×1','x').replace('×2','y')..replace(" ", "").replace("2=","Z=")
+        print("expresion limpia",l)
         if "<=" in l:
-            izq, der = l.split("<=")
-            restricciones.append(sp.Le(sp.sympify(izq), sp.sympify(der)))
+            partes = l.split("<=")
+            if len(partes) == 2:
+                izq, der = partes
+                restricciones.append(sp.Le(sp.sympify(izq), sp.sympify(der)))
         elif ">=" in l:
-            izq, der = l.split(">=")
-            restricciones.append(sp.Ge(sp.sympify(izq), sp.sympify(der)))
+            partes = l.split(">=")
+            if len(partes) == 2:
+                izq, der = partes
+                restricciones.append(sp.Ge(sp.sympify(izq), sp.sympify(der)))
         elif "=" in l:
-            izq, der = l.split("=")
-            restricciones.append(sp.Eq(sp.sympify(izq), sp.sympify(der)))
+            partes = l.split("=")
+            if len(partes) == 2:
+                izq, der = partes
+                restricciones.append(sp.Eq(sp.sympify(izq), sp.sympify(der)))
+        else:
+            print("Restricción inválida (no contiene un operador reconocido):", l)
     return restricciones
-'''
-def reemplazar_variables_para_mostrar(expresion):
-    expresion= expresion.replace("x11", "x1")
-    expresion= expresion.replace("x12", "x2")
-    return expresion
-'''
 
 #en maximizar...21-05-2025
 def intersecciones_validas(restrs):
@@ -195,7 +167,7 @@ def intersecciones_validas(restrs):
             if sol:
                 punto = sol[0]
                 px, py = punto[x], punto[y]
-                if all(restr.subs({x: px, y: py}) for restr in restrs):
+                if all(bool(restr.subs({x: px, y: py})) for restr in restrs):#if all(restr.subs({x: px, y: py}) for restr in restrs):#esto estaba aqui
                     puntos.append((float(px), float(py)))
                     explicacion = f"   Intersección de {sp.pretty(eq1)} y {sp.pretty(eq2)}\n"
                     explicacion += f"   Resultado: x = {px}, y = {py}"
@@ -224,31 +196,66 @@ def intersecciones_con_ejes(restr):
         pass
     return puntos, desarrollo
 
-#este ha de ser general
-def generar_grafica(indice_paso,restricciones,vertices,mejor_punto):
+def generar_grafica(indice_paso,restricciones,vertices,mejor_punto): 
     x_vals = np.linspace(0, 10, 400)
+    y_vals = np.linspace(0, 10, 400)#ay noc es nuevo haber si corrige el error
     fig, ax = plt.subplots(figsize=(5.5, 4))
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
+    ax.set_xlim(0, 10)#se ve mejor que con 0,20
+    ax.set_ylim(0, 10)# 
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.grid(True)
     ax.set_title("Representación gráfica")
 
     if indice_paso >= 1:
+        print("Restricciones:", restricciones)# print(f"Restricción {i+1}: {restr}, tipo: {type(restr)}")
         for i, restr in enumerate(restricciones):
             eq = sp.Eq(restr.lhs, restr.rhs)
             if y in eq.free_symbols:
                 sol_y = sp.solve(eq, y)
+                '''
                 if sol_y:
+                    #esto estaba en el codigo original
                     f_y = sp.lambdify(x, sol_y[0], modules=["numpy"])
                     y_vals = f_y(x_vals)
                     ax.plot(x_vals, y_vals, label=f"Restricción {i+1}")
+                    '''
+                if sol_y:
+                    expr = sol_y[0]
+                    f_y = sp.lambdify(x, expr, modules=["numpy"])
+
+                    try:#lo siguiente es por si y es constante
+                        y_vals = f_y(x_vals)
+                        # Si es una función de x, grafica normal
+                        if np.shape(y_vals) == np.shape(x_vals):
+                            ax.plot(x_vals, y_vals, label=f"Restricción {i+1}")
+                        else:
+                            # Si y_vals no tiene la forma correcta, es constante (ej: y = 6)
+                            y_vals = np.full_like(x_vals, fill_value=float(expr))
+                            ax.plot(x_vals, y_vals, label=f"Restricción {i+1}")
+                    except Exception as e:
+                        print(f"Error al graficar restricción {i+1}: {e}")    
+          
             elif x in eq.free_symbols:
                 sol_x = sp.solve(eq, x)
+                '''
+                #esto estaba en el codigo original
                 if sol_x:
                     ax.axvline(x=float(sol_x[0]), linestyle='--', label=f"x = {float(sol_x[0]):.2f}")
-
+                '''
+                if sol_x:
+                    expr = sol_x[0]
+                    f_x = sp.lambdify(y, expr, modules=["numpy"])
+                    try:#caso contrario
+                        x_vals_plot = f_x(y_vals)
+                        if np.shape(x_vals_plot) == np.shape(y_vals):
+                            ax.plot(x_vals_plot, y_vals, label=f"Restricción {i+1}")
+                        else:
+                            x_vals_plot = np.full_like(y_vals, float(expr))
+                            ax.plot(x_vals_plot, y_vals, label=f"Restricción {i+1}")
+                    except Exception as e:
+                        print(f"Error al graficar restricción {i+1}: {e}")
+                
     if indice_paso >= 2:
         X, Y = np.meshgrid(x_vals, x_vals)
         Z = np.ones_like(X, dtype=bool)
@@ -328,7 +335,7 @@ def ver_paso(request):#esto vamos a probarlo se supone que usa los datos guardad
     
     paso=pasos_generados[indice]
     #generar la grafica del paso actual
-    grafica_bytes = generar_grafica(indice, restricciones, vertices, mejor_punto)
+    grafica_bytes = generar_grafica(indice, restricciones, vertices, mejor_punto)#aqui
     grafica_base64 = base64.b64encode(grafica_bytes).decode()
     #grafica = generar_grafica(indice)
     #grafica_base64 = f"data:image/png;base64,{grafica.encode('base64').decode()}"
@@ -345,26 +352,26 @@ def ver_paso(request):#esto vamos a probarlo se supone que usa los datos guardad
 def maximizar(request):#Metodo Simplex maximizar
     if request.method == 'POST' and request.POST.getlist('item'):
         problema = request.POST.getlist('item')#NO TENIA EL POST
-       
-        print("")
+        problema = [line.replace('x1', 'x').replace('x2', 'y') for line in problema]#esto es por si acaso
         funcion_objetivo = parse_funcion_objetivo(problema[0])#limpia la funcion objetivo y la guarda en una variable
-        restr_lines = [line for line in problema if any(op in line for op in ["<=", ">=", "="]) and "Z" not in line]#se asegurran que no este la funcion objetivo
+        restr_lines = [line.strip() for line in problema if ("<=" in line or ">=" in line or "=" in line) and "Z" not in line]#restr_lines = [line for line in problema if any(op in line for op in ["<=", ">=", "="]) and "Z" not in line]#se asegurran que no este la funcion objetivo#esto estaba antes
         restricciones = parse_restricciones(restr_lines)#lo mismo
-        
-        vertices = []
+
+        vertices_validos = []#vertices=[]
         paso2_info = "2. Graficar restricciones:\nRepresentamos gráficamente las restricciones como rectas:\n"
         for restr in restricciones:
             eq = sp.Eq(restr.lhs, restr.rhs)
             puntos, desarrollo = intersecciones_con_ejes(restr)
             paso2_info += f"- {sp.pretty(eq)}\n{desarrollo}"
             for p in puntos:
-                if all(restr.subs({x: p[0], y: p[1]}) for restr in restricciones):
-                    vertices.append(p)
+                if all(bool(restr.subs({x: p[0], y: p[1]})) for restr in restricciones):#if all(restr.subs({x: p[0], y: p[1]}) for restr in restricciones):#esto estaba aqui
+                    vertices_validos.append(p) #vertices.append(p)
+            vertices = vertices_validos
 
         inter_puntos, explicaciones = intersecciones_validas(restricciones)
-        vertices += inter_puntos
-        vertices = list(set(vertices))  # Quitar duplicados
-        print("Vértices encontrados:", vertices)
+        vertices_validos += inter_puntos#vertices += inter_puntos
+        vertices_validos = list(set(vertices_validos))  # Quitar duplicados# vertices = list(set(vertices))
+        print("Vértices encontrados:", vertices_validos)
         print("Restricciones:", restricciones)
         print("Puntos candidatos:", puntos)
 
@@ -450,13 +457,13 @@ def inicio_sesion(request):
 @csrf_exempt
 def registro(request):#ya funciona,falta el login :')
     if request.method == 'POST':
-        print(f"📩 Datos recibidos en POST: {request.POST}")  # esto es para debug
+        print(f"Datos recibidos en POST: {request.POST}")  # esto es para debug
         email = request.POST.get('email', '')
         password = request.POST.get('password', '')
         print("Solicitud de registro recibida: email={email}, password={password}")
 
         if not email or not password:  # Si no se obtiene el email, mostrar un mensaje de error
-            print("❌ Error: Campos vacíos")
+            print("Error: Campos vacíos")
             messages.error(request, "El campo email es obligatorio.")
             return redirect('registro')
         
