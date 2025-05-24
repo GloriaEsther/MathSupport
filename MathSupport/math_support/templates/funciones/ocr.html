@@ -70,6 +70,19 @@
       }
     }
   </style>
+      <!--PWA-->
+    {% load static %}
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+    <meta name="theme-color" content="#007bff">
+    <link rel="icon" href="{% static 'pwa/icons/logo_android-chrome-192x192.png' %}">
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("{% static 'pwa/service-worker.js' %}")
+        .then(reg => console.log('Service Worker registrado', reg))
+        .catch(err => console.error('Error al registrar el Service Worker', err));
+    }
+    </script>
 </head>
 <body>
   <div class="form-container">
@@ -83,7 +96,6 @@
         name="images" 
         id="images" 
         accept="image/*" 
-        capture="environment" 
         multiple 
         required>
       <button type="submit">Procesar imágenes</button>

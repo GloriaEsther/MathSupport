@@ -1,0 +1,20 @@
+{
+  "name": "MathSupport",
+  "short_name": "MathSupport",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#cf1010",
+  "theme_color": "##5a0099",
+  "icons": [
+    {
+      "src": "/static/pwa/icons/logo_android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/pwa/icons/logo_android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

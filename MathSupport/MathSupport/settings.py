@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-1i3w&m14*ofirg8ph_155fi*0r-)$pyd(9)&*%^h6pt%rxu$g9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = ['*']#esto es permitirle a cualquier ip (solo es para desarrollo)#esto es para pwa
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.71']
+
 
 
 # Application definition
@@ -130,6 +132,7 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "C:/Users/22835/Downloads/Taller 2/Aplicacion/MathSupport/math_support/static"]
 #STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type

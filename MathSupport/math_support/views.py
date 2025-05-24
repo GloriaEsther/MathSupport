@@ -358,7 +358,7 @@ def ver_paso(request):#esto vamos a probarlo se supone que usa los datos guardad
 @csrf_exempt
 def maximizar(request):#Metodo Simplex maximizar
     if request.method == 'POST' and request.POST.getlist('item'):
-        problema = request.POST.getlist('item')#NO TENIA EL POST
+        problema = request.POST.getlist('item')
         problema = [line.replace('x1', 'x').replace('x2', 'y') for line in problema]#esto es por si acaso
         funcion_objetivo = parse_funcion_objetivo(problema[0])#limpia la funcion objetivo y la guarda en una variable
         restr_lines = [line.strip() for line in problema if ("<=" in line or ">=" in line or "=" in line) and "Z" not in line]#restr_lines = [line for line in problema if any(op in line for op in ["<=", ">=", "="]) and "Z" not in line]#se asegurran que no este la funcion objetivo#esto estaba antes
