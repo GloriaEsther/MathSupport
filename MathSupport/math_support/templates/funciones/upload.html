@@ -1,9 +1,0 @@
-<h1>Sube tus imágenes (una por ecuación o restricción)</h1>
-
-<form method="POST" enctype="multipart/form-data">
-  {% csrf_token %}
-  <label>Imágenes de las ecuaciones (1 por imagen):</label><br>
-  <input type="file" name="images" accept="image/*" capture="environment" multiple required>
-  <br><br>
-  <button type="submit">Procesar imágenes</button>
-</form>

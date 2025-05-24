@@ -1,24 +1,99 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Resolución paso a paso</title>
+  <meta charset="UTF-8">
+  <title>Resolución paso a paso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e0d4f7;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background-color: #cf1010;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #5a0099;
+    }
+
+    .secondary-button {
+      background-color: #cf1010;
+    }
+
+    .secondary-button:hover {
+      background-color: #222;
+    }
+  </style>
 </head>
 <body>
-    <h2>Resolución paso a paso{{indice|add:1}}</h2>
-    <p>{{ paso }}</p>
+  <h2>Resolución paso a paso {{ indice|add:1 }}</h2>
+  <p>{{ paso }}</p>
 
-    <div>
-        <img src="{{ grafica_base64 }}" alt="Gráfica del paso {{ indice }} " />
-    </div>
+  <div>
+    <img src="{{ grafica_base64 }}" alt="Gráfica del paso {{ indice }}" />
+  </div>
 
-    <form method="get">
-        {% if tiene_anterior %}
-            <button name="paso" value="{{ indice|add:'-1' }}">← Paso anterior</button>
-        {% endif %}
-        {% if tiene_siguiente %}
-            <button name="paso" value="{{ indice|add:'1' }}">Siguiente paso →</button>
-        {% endif %}
+  <!-- Navegación entre pasos -->
+  <form method="get">
+    {% if tiene_anterior %}
+      <button name="paso" value="{{ indice|add:'-1' }}">← Paso anterior</button>
+    {% endif %}
+    {% if tiene_siguiente %}
+      <button name="paso" value="{{ indice|add:'1' }}">Siguiente paso →</button>
+    {% endif %}
+  </form>
+
+  <!-- Botones adicionales -->
+  <div class="btn-group">
+    <!-- Volver al inicio -->
+    <form action="{% url 'ocr_view' %}" method="get">
+      <button type="submit" class="secondary-button">⬅ Volver al inicio</button>
     </form>
+  </div>
 </body>
 </html>
