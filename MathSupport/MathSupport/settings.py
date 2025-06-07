@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-1i3w&m14*ofirg8ph_155fi*0r-)$pyd(9)&*%^h6pt%rxu$g9
 DEBUG = True
 
 #ALLOWED_HOSTS = ['*']#esto es permitirle a cualquier ip (solo es para desarrollo)#esto es para pwa
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.71']
+#ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.71','192.168.191.27']
 
 
 

@@ -104,10 +104,14 @@
 
   <!-- Botones adicionales -->
   <div class="btn-group">
-    <!-- Volver al inicio -->
+    <!-- Volver al inicio  podriamos agregar un boton para guardar el problrma tambien :)-->
     <form action="{% url 'ocr_view' %}" method="get">
       <button type="submit" class="secondary-button">⬅ Volver al inicio</button>
     </form>
+    <form method="POST" action="{% url 'guardar_problemas' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success">Guardar Ejercicio</button>
+    </form> 
   </div>
 </body>
 </html>

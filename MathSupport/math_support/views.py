@@ -33,14 +33,12 @@ from scipy.spatial import ConvexHull
 #OCR
 # Carga el modelo una sola vez
 model = Pix2Text(model_name='mfr')#para ejercicios manuscritos
-#23/05/2025
 def mover_no_negatividad_al_final(restricciones):
     no_negativas = []
     otras = []
     fun_obj = []
 
     for r in restricciones:
-         # Si r es un string, úsalo directamente
         if isinstance(r, dict):
             texto = r.get("contenido", "").strip().lower().replace(' ', '')
         elif isinstance(r, str):
@@ -85,12 +83,10 @@ def ocr_view(request):
         })
     return render(request, 'funciones/ocr.html')# return render(request, 'funciones/upload.html')
 
-#resolucion de problemas (estamos en pruebas,ya muestra la grafica)
-#23-05-2025
+#resolucion de problemas 
 #declara variables
 x, y = sp.symbols("x y")
 x1, x2 = sp.symbols('x1 x2')  # estos se usan en la entrada del usuario#
-
 variables = (x, y)
 
 def limpiar_expresion(expr):#revisa que la expresion ingresada(lista) contenga una letra (como en la funcion objetivo usa Z como funcion (para maximizar))
@@ -286,6 +282,7 @@ def generar_grafica(indice_paso,restricciones,vertices,mejor_punto):
         ax.plot(opt_x, opt_y, "go", markersize=10, label="Óptimo")
 
     ax.legend(fontsize=7)
+    #La imagen se genera y guarda en memoria retornando la imagen en binario y almacenada en BytesIO
     buffer = io.BytesIO()
     canvas = FigureCanvas(fig)
     canvas.print_png(buffer)
@@ -325,8 +322,8 @@ def paso_anterior(request):
 
     return paso_actual(request)
 
-@csrf_exempt
-def ver_paso(request):#esto vamos a probarlo se supone que usa los datos guardados en request para mana
+@csrf_exempt#luego lo quitas
+def ver_paso(request):
     indice = int(request.GET.get("paso", 0))
     pasos_generados = request.session.get("pasos_generados", [])
     if not pasos_generados:
@@ -335,12 +332,12 @@ def ver_paso(request):#esto vamos a probarlo se supone que usa los datos guardad
     if indice >= len(pasos_generados): indice = len(pasos_generados) - 1
   
     # Recuperar datos serializados
-    restricciones= pickle.loads(base64.b64decode(request.session["restricciones"]))#cambie el nombre de la variable pero la logica es la misma
+    restricciones= pickle.loads(base64.b64decode(request.session["restricciones"]))
     vertices = pickle.loads(base64.b64decode(request.session["vertices"]))
     mejor_punto = pickle.loads(base64.b64decode(request.session["mejor_punto"]))
     
     paso=pasos_generados[indice]
-    #generar la grafica del paso actual
+    #generar la grafica del paso actual:Aquí se convierten los bytes de la imagen a una cadena base64 legible.
     grafica_bytes = generar_grafica(indice, restricciones, vertices, mejor_punto)#aqui
     grafica_base64 = base64.b64encode(grafica_bytes).decode()
     #grafica = generar_grafica(indice)
@@ -354,6 +351,50 @@ def ver_paso(request):#esto vamos a probarlo se supone que usa los datos guardad
         "tiene_siguiente": indice < len(pasos_generados) - 1,
     })
 
+#Guardar en la base de datos 
+@csrf_exempt
+def guardar_problemas(request):
+    if request.method == "POST":
+        email = request.session.get("email")
+        if not email:
+            return JsonResponse({"error": "Usuario no autenticado"}, status=401)
+        
+        ecuacion = request.session.get("problema")#ecuacion = request.session.get("ecuacion", "No definida")
+        pasos = request.session.get("pasos_generados", [])
+      
+        # Decodificar el resultado (mejor_punto)
+        resultado_serializado = request.session.get("mejor_punto")
+        if resultado_serializado:
+            mejor_punto = pickle.loads(base64.b64decode(resultado_serializado))
+           # punto_texto = f"({mejor_punto[0][0]}, {mejor_punto[0][1]})"
+            punto=mejor_punto[0]
+            z = mejor_punto[1]
+            resultado_legible = f"Z = {z} en el punto {punto[0]},{punto[1]}"
+        else:
+            resultado_legible = "Sin resultado"
+
+        # Cargar los datos necesarios para cada gráfica
+        restricciones = pickle.loads(base64.b64decode(request.session["restricciones"]))
+        vertices = pickle.loads(base64.b64decode(request.session["vertices"]))
+        # Generar una gráfica base64 por cada paso
+        graficas = []
+        for i in range(len(pasos)):
+            grafica_bytes = generar_grafica(i, restricciones, vertices, mejor_punto)
+            imagen_base64 = base64.b64encode(grafica_bytes).decode("utf-8")
+            graficas.append(f"data:image/png;base64,{imagen_base64}")
+
+        # Guardar en MongoDB
+        ProblemaModel.guardar_problema(
+            email,
+            ecuacion,
+            graficas,  # Guardamos todas
+            resultado_legible,
+            pasos
+        )
+        messages.success(request,"El problema fue guardado correctamente")
+    return redirect("ocr_view")
+   # return JsonResponse({"error": "Método no permitido"}, status=405)
+
 #Metodo Simplex maximizar
 @csrf_exempt
 def maximizar(request):#Metodo Simplex maximizar
@@ -363,28 +404,25 @@ def maximizar(request):#Metodo Simplex maximizar
         funcion_objetivo = parse_funcion_objetivo(problema[0])#limpia la funcion objetivo y la guarda en una variable
         restr_lines = [line.strip() for line in problema if ("<=" in line or ">=" in line or "=" in line) and "Z" not in line]#restr_lines = [line for line in problema if any(op in line for op in ["<=", ">=", "="]) and "Z" not in line]#se asegurran que no este la funcion objetivo#esto estaba antes
         restricciones = parse_restricciones(restr_lines)#lo mismo
-
         vertices_validos = []#vertices=[]
-        #voy a cambiarle aver que onda
-        puntos_ejes_totales = []  # <--- lista acumuladora(esto es nuevo)
+        puntos_ejes_totales = []  
         paso2_info = "2. Graficar restricciones:\nRepresentamos gráficamente las restricciones como rectas:\n"
         for restr in restricciones:
             eq = sp.Eq(restr.lhs, restr.rhs)
             puntos, desarrollo = intersecciones_con_ejes(restr)
             paso2_info += f"- {sp.pretty(eq)}\n{desarrollo}"
-          #puntos_ejes_totales.extend(puntos)  # <--- acumulamos aquí
             
             for p in puntos:
                 if all(bool(restr.subs({x: p[0], y: p[1]})) for restr in restricciones):#if all(restr.subs({x: p[0], y: p[1]}) for restr in restricciones):#esto estaba aqui
-                    vertices_validos.append(p) #vertices.append(p)
-           # vertices = vertices_validos
-
+                    vertices_validos.append(p) 
+          
         inter_puntos, explicaciones = intersecciones_validas(restricciones)
         vertices_validos += inter_puntos#vertices += inter_puntos
         vertices_validos = list(set(vertices_validos))  # Quitar duplicados# vertices = list(set(vertices))
         print("Vértices encontrados:", vertices_validos)
         print("Restricciones:", restricciones)
-        print("Puntos candidatos:(ejes):", puntos_ejes_totales)#esto es nuevo,se imprimen todos los ejes
+        print("Puntos candidatos:(ejes):", puntos_ejes_totales)
+        
 
         evaluaciones = []
         evaluacion_texto = ""
@@ -432,7 +470,7 @@ def maximizar(request):#Metodo Simplex maximizar
         request.session["restricciones"] = base64.b64encode(pickle.dumps(restricciones)).decode()#este es nuevo
         request.session["vertices"] = base64.b64encode(pickle.dumps(vertices_validos)).decode()#dumps(vertices_validos)
         request.session["mejor_punto"] = base64.b64encode(pickle.dumps(mejor_punto)).decode()
-
+        request.session["problema"] = problema[0]  # funcion objetivo
         return redirect("ver_paso") 
     
 @csrf_exempt
@@ -441,7 +479,7 @@ def resolver_ecuacion(request):#hay una plantilla en html que llama a esta por a
  return render(request,"funciones/resolver.html")
 
 #login
-@csrf_exempt#esta etiqueta es una "proteccion" contra falsificaciones de solicitudes entre sitios (CSRF)
+@csrf_exempt
 def bienvenida(request):
     return render (request,"usuario/bienvenida.html")#ruta relativa
 
@@ -450,11 +488,10 @@ def inicio_sesion(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-        # Buscar usuario en la base de datos
+        
         usuario = UsuarioModel.autenticar_usuario(email, password)
         if usuario:
-            request.session['usuario_id'] = str(usuario['_id'])  # Guardar en sesión
-            request.session['usuario_email'] = usuario['email'] 
+            request.session["email"] = usuario["email"] 
             messages.success(request, "Inicio de sesión exitoso.")
             return redirect('ocr_view')#vista del ocr #redirect('home')#esta es la vista de la camarita# Redirigir a la página principal
         else:
