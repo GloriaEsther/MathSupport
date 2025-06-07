@@ -56,7 +56,7 @@ def mover_no_negatividad_al_final(restricciones):
 @csrf_exempt
 def ocr_view(request):
     if request.method == 'POST' and request.FILES.getlist('images'):#recupera la lista de las imagenes ingresadas en el formulario
-        files = request.FILES.getlist('images')#y las pasa a una lista
+        files = request.FILES.getlist('images')#y las pasa a una lista         
         resultados = []
         for image_file in files:
             fs = FileSystemStorage()
@@ -78,10 +78,11 @@ def ocr_view(request):
             os.remove(image_path)
             # Mover no negatividad al final
             Resultados= mover_no_negatividad_al_final(resultados)
+            print(Resultados)
         return render(request, 'funciones/result.html', {#result es en donde se muestra la ecuacion :b
             'resultados': Resultados#en las plantillas siempre se pone laa variables en minuscula al llamarlas a las plantillas(se llama a resultados)
         })
-    return render(request, 'funciones/ocr.html')# return render(request, 'funciones/upload.html')
+    return render(request, 'funciones/ocr.html')
 
 #resolucion de problemas 
 #declara variables
@@ -488,7 +489,16 @@ def inicio_sesion(request):
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
-        
+
+        if not email or not password:  # Si no se obtiene el email, mostrar un mensaje de error
+            print("Error: Campos vacíos")
+            messages.error(request, "Datos incompletos,por favor, ingrese los datos correctamente.")
+            return render(request,"usuario/login.html")#redirect('registro')
+        '''
+        if "@" not in email:
+            messages.error(request,"Ingrese un correo valido , intente de nuevo.")
+            return render(request,"usuario/login.html")
+       ''' 
         usuario = UsuarioModel.autenticar_usuario(email, password)
         if usuario:
             request.session["email"] = usuario["email"] 
@@ -509,13 +519,18 @@ def registro(request):
 
         if not email or not password:  # Si no se obtiene el email, mostrar un mensaje de error
             print("Error: Campos vacíos")
-            messages.error(request, "El campo email es obligatorio.")
-            return redirect('registro')
-        
+            messages.error(request, "Datos incompletos, por favor, ingrese los datos correctamente.")
+            return render(request,"usuario/registro.html")#redirect('registro')
+        '''
+         if "@" not in email:
+            messages.error(request,"Ingrese un correo valido , intente de nuevo.")
+            return render(request,"usuario/registro.html")
+        '''
+       
         resultado = UsuarioModel.registrar_usuario(email, password)
         print("usuario: ",resultado)
 
-        if "error" in resultado:
+        if "error" in resultado:#veremos si se queda......
             messages.error(request, resultado["error"])
         else:
             messages.success(request, resultado["mensaje"])   

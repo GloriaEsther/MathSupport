@@ -24,12 +24,31 @@
 </head>
 
 <body>
+    {% if messages %}
+        <div class="modal fade show" tabindex="-1" style="display:block; background-color: rgba(0,0,0,0.5);" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Error</h5>
+                </div>
+                <div class="modal-body">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+                </div>
+                <div class="modal-footer">
+                <a href="" class="btn btn-danger">Aceptar</a>
+                </div>
+            </div>
+            </div>
+        </div>
+    {% endif %}
+
     <!-- Contenedor de la imagen de fondo con semicírculo -->
     <div class="background-container">
         <img src="{% static 'images/fondo.jpeg' %}" alt="Fondo" class="background-image">
     </div>
 
-    <!-- Logo encima de la imagen de fondo te quedaste en cambiar la pantalla de inicio y entenderle a los problemas de zahori oara ver qupdo con la bd -->
     <div class="logo-container">
         <img src="{% static 'images/logo de a devis.jpeg' %}" alt="Logo" class="logo">
     </div>
