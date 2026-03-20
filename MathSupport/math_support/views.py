@@ -521,12 +521,19 @@ def registro(request):
             print("Error: Campos vacíos")
             messages.error(request, "Datos incompletos, por favor, ingrese los datos correctamente.")
             return render(request,"usuario/registro.html")#redirect('registro')
-        '''
-         if "@" not in email:
+        
+        if "@" not in email:
             messages.error(request,"Ingrese un correo valido , intente de nuevo.")
             return render(request,"usuario/registro.html")
-        '''
-       
+        
+        if len(password) < 4:
+            messages.error(request, "La contraseña debe tener al menos 4 caracteres.")
+            return render(request, "usuario/registro.html")
+
+        if len(password) >8:
+            messages.error(request,"La contrasena no debe tener mas de 8 caracteres.")
+            return render(request,"usuario/registro.html")
+
         resultado = UsuarioModel.registrar_usuario(email, password)
         print("usuario: ",resultado)
 
@@ -536,8 +543,18 @@ def registro(request):
             messages.success(request, resultado["mensaje"])   
 
         messages.success(request, "Registro exitoso. Ahora puedes iniciar sesión.")
+        # Al iniciar sesión correctamente
+       # request.session['usuario_email'] = email
+        #request.session['password']=password#luego lo ocupo
+
         return redirect('ocr_view')#vista del ocr #redirect('home')#esta es la vista de la camarita
     return render(request, "usuario/registro.html")
+
+#@login_required
+def historial_problemas(request):
+    email =request.session.get("email")# request.session.get('email')#request.POST.get('email', '')
+    problemas = ProblemaModel.obtener_problemas_por_usuario(email)
+    return render(request, "usuario/historial.html", {"problemas": problemas})
 
 @csrf_exempt
 def home(request):#luego la tomo en cuenta

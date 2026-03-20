@@ -75,7 +75,7 @@ class ProblemaModel:#se pudo usar mongoengine parea llenar los problemas automat
     def cargar_problemas_iniciales():
         problemas_iniciales = [
             {
-                "usuario_email": "mimi@gmail.com",  # puedes poner "base" si no hay usuario  te quedaste aqui
+                "usuario_email": "mimi@gmail.com",  
                 "ecuacion": "2x + 3 = 7",
                 "imagen_url": "",  # vacío porque es manual
                 "resultado": "x = 2",

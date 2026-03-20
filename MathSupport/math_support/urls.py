@@ -15,6 +15,7 @@ urlpatterns = [
     path('maximizar/',views.maximizar,name="maximizar"),
     path('ver_paso/',views.ver_paso,name="ver_paso"),
     path("guardar_problemas/", views.guardar_problemas, name="guardar_problemas"),
+    path('historial/', views.historial_problemas, name='historial_problemas'),
     #path('agregar/', views.agregar_ecuacion, name='agregar_ecuacion'),
     #path('ver_ecuaciones/', views.ver_ecuaciones, name='ver_ecuaciones'),
    # path('reconocer/', views.reconocer_ecuacion, name='reconocer_ecuacion'),
