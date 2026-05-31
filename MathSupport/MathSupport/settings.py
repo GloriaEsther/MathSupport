@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-#from mongoengine import connect
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,8 +30,6 @@ DEBUG = True
 
 #ALLOWED_HOSTS = ['*']#esto es permitirle a cualquier ip (solo es para desarrollo)#esto es para pwa
 #ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.71','192.168.191.27']
-
-
 
 # Application definition
 
@@ -80,20 +80,14 @@ WSGI_APPLICATION = 'MathSupport.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE':'django.db.backends.sqlite3', #'django.db.backends.dummy',# Se deja en dummy porque usamos pymongo
+        'ENGINE':'django.db.backends.sqlite3',# Se deja en dummy porque usamos pymongo
         'NAME': BASE_DIR / 'dummy.sqlite3',# Con eso, Django podrá manejar las sesiones y los mensajes flash (messages) sin intentar usar un backend de base de datos que no existe.
     }
 }
 
-'''
-connect(
-    db="math_supportdb",
-    host="mongodb://localhost:27017/mi_base_de_datos"
-)
-'''
 # Configuración de MongoDB (Usando pymongo manualmente)
-MONGO_URI = "mongodb://localhost:27017"
-MONGO_DB_NAME = "mathsupport_db"
+MONGO_URI = os.getenv('URL')# "mongodb://localhost:27017"
+MONGO_DB_NAME = os.getenv('DB')#"mathsupport_db"
 
 
 # Password validation

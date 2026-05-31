@@ -2,11 +2,10 @@
 from pymongo import MongoClient
 import bcrypt
 from datetime import datetime
-MONGO_URI = "mongodb://localhost:27017"
-MONGO_DB_NAME = "mathsupport_db"
+from django.conf import settings
 
-client = MongoClient(MONGO_URI)
-db = client[MONGO_DB_NAME]
+client = MongoClient(settings.MONGO_URI)
+db = client[settings.MONGO_DB_NAME]
 
 # Colecciones
 usuarios_collection = db["Usuario"]
@@ -30,7 +29,7 @@ class UsuarioModel:
             "password": hashed_password.decode("utf-8"),
         }
         resultado = usuarios_collection.insert_one(usuario)
-        print(f"✅ Usuario guardado con ID: {resultado.inserted_id}")  # 🔍 Debug
+        #print(f"✅ Usuario guardado con ID: {resultado.inserted_id}")  # 🔍 Debug
         return {"mensaje": "Registro exitoso", "id": str(resultado.inserted_id)}
 
     @staticmethod
@@ -54,7 +53,7 @@ class ProblemaModel:#se pudo usar mongoengine parea llenar los problemas automat
             "fecha": datetime.utcnow()
         }
         resultado_insert = problemas_collection.insert_one(problema)
-        print(f"✅ Problema guardado con ID: {resultado_insert.inserted_id}")
+       # print(f"✅ Problema guardado con ID: {resultado_insert.inserted_id}")
         return {"mensaje": "Problema guardado", "id": str(resultado_insert.inserted_id)}
 
     @staticmethod#aqui serviria como historial para el usuario
@@ -93,6 +92,3 @@ class ProblemaModel:#se pudo usar mongoengine parea llenar los problemas automat
         ]
         return problemas_iniciales
     
-    #problemas_collection.insert_many(cargar_problemas_iniciales)
-    #print("✅ Problemas iniciales insertados.")
-
